@@ -48,39 +48,3 @@ def show(ori_func, ft, sampling_period=5, **kwargs):
                  xy=(frequency_list[idx], max_v))
     plt.show()
 
-# a = 0.5
-# f = 12
-# time = 200
-# sample_rate = 50
-#
-# signal = np.random.normal(0, 9.8 / 12, sample_rate * time)
-# g_noise = np.random.normal(0, 1, len(signal))
-# signal = signal + g_noise
-# plt.plot(signal)
-# plt.show()
-#
-# # rand_l = np.concatenate((np.random.rand(5000)*10, np.random.rand(3000)*(-10)))
-# # np.random.shuffle(signal)
-# # pp(signal)
-#
-# sine = sine_signal_xHz(a, f, time, sample_rate)
-# # time = np.arange(0, 20, 0.02)
-# # sine = np.sin(2 * np.pi * 12 * time)
-# sine = sine + np.random.normal(0, 0.02, time * sample_rate)
-# plt.plot(sine)
-# plt.show()
-#
-# signal_added = signal + sine
-# # plt.plot(signal_added)
-# # plt.show()
-#
-# fft = np.fft.fft(signal_added)
-# # pp(fft.tolist())
-# # plt.plot(f)
-#
-# # sp = np.fft.fft(sine)
-# # freq = np.fft.fftfreq(time * sample_rate)
-# # plt.plot(freq, sp.real, freq, sp.imag)
-# # plt.show()
-#
-# show(signal_added, fft, time)

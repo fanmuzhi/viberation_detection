@@ -44,46 +44,51 @@ class DrvLog(object):
             print(e.args)
         except UnicodeDecodeError as e:
             print(e.args)
+        self.df_dict = {
+            'accelerometer': pd.DataFrame,
+            'gyroscope': pd.DataFrame
+        }
 
     def extract_data(self, pattern):
         data_list = pattern.findall(self.text)
         return data_list
 
-    def calc_timestamp(self, ts_tuple):
-        return eval(ts_tuple[0]) << 32 | ts_tuple[1]
+    def parse_df(self, pattern):
+        data_list = self.extract_data(pattern)
+        df = pd.DataFrame(data_list,
+                          columns=['x', 'y', 'z', 'ts_hh', 'ts_lh'])
+        for c_name, _ in df.iteritems():
+            df[c_name] = pd.to_numeric(df[c_name])
+        ts = (np.bitwise_or(np.left_shift(df['ts_hh'], 32), df['ts_lh']))
+        df['timestamp(ms)'] = ts / 19200
+        df['ts_interval'] = df['timestamp(ms)'].diff()
+        df = df.applymap(lambda x: '%.2f' % x if isinstance(x, float) else x)
+        return df
 
-drv_log = DrvLog(r'./bmi270_6hz.log')
+    def parse_acc_data(self):
+        self.df_dict.update(
+            {'accelerometer': self.parse_df(self.acc_pattern)})
 
-acc_list = drv_log.acc_pattern.findall(drv_log.text)
-gyr_list = drv_log.gyr_pattern.findall(drv_log.text)
+    def parse_gyr_data(self):
+        self.df_dict.update(
+            {'gyroscope': self.parse_df(self.gyr_pattern)})
 
-acc_df = pd.DataFrame(acc_list, columns=['x', 'y', 'z', 'ts_hh', 'ts_lh'])
-# acc_df = acc_df[176:9080]
-gyr_df = pd.DataFrame(gyr_list, columns=['x', 'y', 'z', 'ts_hh', 'ts_lh'])
-print("file loaded and parsed!")
-pd.set_option('display.max_columns', None)
-pd.set_option('display.max_rows', None)
 
-dataframes = {'accelerator': acc_df, 'gyroscope': gyr_df}
-for sensor, df in dataframes.items():
-    for c_name, _ in df.iteritems():
-        df[c_name] = pd.to_numeric(df[c_name])
-    # formater = "{0:.03f}".format
-    # acc_df.applymap(formater)
-    # gyr_df.applymap(formater)
-    df['timestamp'] = np.bitwise_or(np.left_shift(df['ts_hh'], 32), df['ts_lh'])
-    time = (df['timestamp'].tolist()[-1] - df['timestamp'].tolist()[0]) / 19200 / 1000  # sampling period(s)
-    sample_rate = (len(df)-1) / time
-    print(time, "s", sample_rate, "Hz")
+if __name__ == "__main__":
+    drv_log = DrvLog(r'./bmi270_6hz.log')
+    drv_log.parse_acc_data()
+    drv_log.parse_gyr_data()
+    # print(drv_log.df_dict['accelerometer'])
 
-    # desc = df.describe()
-    # print(desc)
-    for axis in ('x', 'y', 'z'):
-        # pp(df[axis])
-        signal = df[axis]
-        time = len(signal) / sample_rate
-        fft = np.fft.fft(signal)
-        show(signal, fft, time, sensor=sensor, axis=axis)
-    # nd_data = df[['x', 'y', 'z']]
-    # nfft = np.fft.fftn(nd_data)
-    # show(nd_data, nfft, time)
+    dataframes = drv_log.df_dict
+    for sensor, df in dataframes.items():
+        sample_period = df.describe()['timestamp(ms)']['max'] -\
+                        df.describe()['timestamp(ms)']['min']  # sampling period(ms)
+        sample_period = sample_period / 1000  # sampling period(s)
+        sample_rate = df.describe()['timestamp(ms)']['count'] / sample_period
+        # print(df.size)
+        print(sample_period, "s", sample_rate, "Hz")
+
+        show(df['x'], np.fft.fft(df['x']), sample_period, sensor=sensor, axis='x')
+        show(df['x'], np.fft.fft(df['y']), sample_period, sensor=sensor, axis='y')
+        show(df['z'], np.fft.fft(df['z']), sample_period, sensor=sensor, axis='z')
