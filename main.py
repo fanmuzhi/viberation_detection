@@ -5,6 +5,7 @@ import sys
 from PyQt5 import QtCore, QtWidgets
 from mainui import Ui_MainWindow
 from drv_log_file import DrvLog
+from data_fft import *
 
 
 def warning_dialog(title, content):
@@ -35,7 +36,7 @@ class PandasModel(QtCore.QAbstractTableModel):
                 return str(self._data.values[index.row()][index.column()])
         return None
 
-    def headerData(self, section, orientation, role):
+    def headerData(self, section, orientation, role=None):
         # section is the index of the column/row.
         if role == QtCore.Qt.DisplayRole:
             if orientation == QtCore.Qt.Horizontal:
@@ -56,6 +57,7 @@ class MyApp(QtWidgets.QMainWindow):
         # self.ui.setupWidget(self)
         # self.initialize()
         self._setup_signal()
+        self.drvlog = None
 
     def initialize(self):
         self.update_settings()
@@ -67,6 +69,7 @@ class MyApp(QtWidgets.QMainWindow):
     def _setup_signal(self):
         self.ui.action_load_logfile.triggered.connect(
             self.choose_log_file)
+        self.ui.acc_data_tableView.horizontalHeader().sectionClicked.connect(self.show_fft_result)
 
     def choose_log_file(self):
         self.logfile, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -76,28 +79,40 @@ class MyApp(QtWidgets.QMainWindow):
         if not self.logfile:
             return
         else:
-            drvlog = DrvLog(self.logfile)
-            drvlog.parse_acc_data()
-            drvlog.parse_gyr_data()
-            # print(drvlog.df_dict['accelerometer'])
-            self.set_table_data(drvlog.df_dict['accelerometer'])
+            self.drvlog = DrvLog(self.logfile)
+            self.drvlog.parse_acc_data()
+            self.drvlog.parse_gyr_data()
+            self.set_table_data(self.drvlog.df_dict['accelerometer'], self.ui.acc_data_tableView)
+            self.set_table_data(self.drvlog.df_dict['gyroscope'], self.ui.gyr_data_tableView)
 
-    def set_table_data(self, df):
-        print(df.describe())
+    def set_table_data(self, df, table_widget):
         model = PandasModel(df)
-        view = self.ui.acc_data_tableView
-        # view = self.ui.table_frame
-        # app.setStyleSheet(load_stylesheet_pyqt5())
-        # fnt = view.font()
-        # fnt.setPointSize(9)
-        # view.setFont(fnt)
+        view = table_widget
+        fnt = view.font()
+        fnt.setPointSize(9)
+        view.setFont(fnt)
         view.setModel(model)
-        hh = view.horizontalHeader()
-
-        # print(view.verticalHeader())
+        view.horizontalHeader().stretchLastSection()
+        view.verticalHeader().stretchLastSection()
+        # view.resizeColumnsToContents()
         # view.setWindowTitle('viewer')
-        # view.resize(1080, 400)
         view.show()
+
+    def show_fft_result(self):
+        if self.ui.acc_tab.isActiveWindow():
+            sensor = "accelerometer"
+        elif self.ui.gyr_tab.isActiveWindow():
+            sensor = "gyroscope"
+        sample_period = self.drvlog.df_dict[sensor].describe()['timestamp(ms)']['max'] -\
+                        self.drvlog.df_dict[sensor].describe()['timestamp(ms)']['min']  # sampling period(ms)
+        sample_period = sample_period / 1000
+        show(
+            self.drvlog.df_dict[sensor]['y'],
+            np.fft.fft(self.drvlog.df_dict[sensor]['y']),
+            sampling_period=sample_period,
+            sensor=sensor,
+            axis='y',
+            )
 
 
 if __name__ == "__main__":

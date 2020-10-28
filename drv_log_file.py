@@ -62,7 +62,7 @@ class DrvLog(object):
         ts = (np.bitwise_or(np.left_shift(df['ts_hh'], 32), df['ts_lh']))
         df['timestamp(ms)'] = ts / 19200
         df['ts_interval'] = df['timestamp(ms)'].diff()
-        df = df.applymap(lambda x: '%.2f' % x if isinstance(x, float) else x)
+        # df = df.applymap(lambda x: '%.2f' % x if isinstance(x, float) else x)
         return df
 
     def parse_acc_data(self):
@@ -78,14 +78,14 @@ if __name__ == "__main__":
     drv_log = DrvLog(r'./bmi270_6hz.log')
     drv_log.parse_acc_data()
     drv_log.parse_gyr_data()
-    # print(drv_log.df_dict['accelerometer'])
+    print(drv_log.df_dict["accelerometer"])
 
-    dataframes = drv_log.df_dict
-    for sensor, df in dataframes.items():
+    for sensor, df in drv_log.df_dict.items():
+        print(df.describe())
         sample_period = df.describe()['timestamp(ms)']['max'] -\
                         df.describe()['timestamp(ms)']['min']  # sampling period(ms)
         sample_period = sample_period / 1000  # sampling period(s)
-        sample_rate = df.describe()['timestamp(ms)']['count'] / sample_period
+        sample_rate = (df.describe()['timestamp(ms)']['count'] - 1) / sample_period
         # print(df.size)
         print(sample_period, "s", sample_rate, "Hz")
 
