@@ -20,17 +20,19 @@ def show(ori_func, ft, sampling_period=5, **kwargs):
     title = kwargs.get('sensor', "unknown sensor") + ": " +\
             kwargs.get("axis", "unkown axis")
 
-
+    fig = plt.figure()
     plt.suptitle(title)
     n = len(ori_func)
     interval = sampling_period / n
     # plot original signal
-    plt.subplot(2, 1, 1)
+    # plt.subplot(2, 1, 1)
+    fig.add_subplot(2,1,1)
     plt.plot(np.arange(0, sampling_period, interval), ori_func, 'black')
     plt.xlabel('Time'), plt.ylabel('Amplitude')
 
     # plot fft transformation
-    plt.subplot(2, 1, 2)
+    fig.add_subplot(2,1,2)
+    # plt.subplot(2, 1, 2)
     frequency = np.arange(int(n / 2)) / sampling_period
     frequency = list(map(lambda x: float('%.1f' % x), frequency))
     nfft = abs(ft[range(int(n / 2))] / n)  # normalization and select half
