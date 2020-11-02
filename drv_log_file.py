@@ -6,14 +6,10 @@
 __filename__ = "drv_log_file"
 __version__ = "init"
 __author__ = "@henry.fan"
-import os
+# import os
 import re
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
-from pprint import pprint as pp
-
-from data_fft import *
 
 
 class DrvLog(object):
@@ -89,6 +85,6 @@ if __name__ == "__main__":
         # print(df.size)
         print(sample_period, "s", sample_rate, "Hz")
 
-        show(df['x'], np.fft.fft(df['x']), sample_period, sensor=sensor, axis='x')
-        show(df['x'], np.fft.fft(df['y']), sample_period, sensor=sensor, axis='y')
-        show(df['z'], np.fft.fft(df['z']), sample_period, sensor=sensor, axis='z')
+        # show(df['x'], np.fft.fft(df['x']), sample_period, sensor=sensor, axis='x')
+        # show(df['x'], np.fft.fft(df['y']), sample_period, sensor=sensor, axis='y')
+        # show(df['z'], np.fft.fft(df['z']), sample_period, sensor=sensor, axis='z')

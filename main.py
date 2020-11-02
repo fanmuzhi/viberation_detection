@@ -3,13 +3,11 @@
 import os
 import sys
 from PyQt5 import QtCore, QtWidgets
-from mainui import Ui_MainWindow
 from drv_log_file import DrvLog
 
 import numpy as np
-import pandas as pd
-from pprint import pprint as pp
 import matplotlib.pyplot as plt
+from mainui import Ui_MainWindow
 
 
 def plot_result(dataframe, **kwargs):
@@ -51,7 +49,7 @@ def plot_result(dataframe, **kwargs):
                                     frequency.count(f)])) for f in set(frequency)]
         max_v = max(nfft_list[1:])
         idx = list.index(list(nfft_list), max_v)
-        print(frequency_list[idx], max_v)
+        # print(frequency_list[idx], max_v)
         plt.stem(frequency_list, nfft_list, use_line_collection=True, linefmt='grey', markerfmt='o')
         plt.stem([frequency_list[idx]], [max_v], use_line_collection=True, linefmt='red', markerfmt='Dr')
         plt.xlabel('Freq (Hz)'), plt.ylabel('Amp. Spectrum')
@@ -62,17 +60,17 @@ def plot_result(dataframe, **kwargs):
                      textcoords='offset points',
                      ha='center', va='bottom'
                      )
-    plt.get_current_fig_manager().window.showMaximized()
+    # plt.get_current_fig_manager().window.showMaximized()
     plt.show()
 
 
-def warning_dialog(title, content):
-    warning_box = QtWidgets.QMessageBox()
-    warning_box.setWindowTitle(title)
-    warning_box.setIcon(QtWidgets.QMessageBox.Warning)
-    warning_box.setText(content)
-    warning_box.setWindowModality(QtCore.Qt.ApplicationModal)
-    warning_box.exec()
+# def warning_dialog(title, content):
+#     warning_box = QtWidgets.QMessageBox()
+#     warning_box.setWindowTitle(title)
+#     warning_box.setIcon(QtWidgets.QMessageBox.Warning)
+#     warning_box.setText(content)
+#     warning_box.setWindowModality(QtCore.Qt.ApplicationModal)
+#     warning_box.exec()
 
 
 class PandasModel(QtCore.QAbstractTableModel):

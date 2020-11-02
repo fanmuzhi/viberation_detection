@@ -8,7 +8,6 @@ __version__ = "init"
 __author__ = "@henry.fan"
 
 import numpy as np
-from pprint import pprint as pp
 import matplotlib.pyplot as plt
 
 
