@@ -48,6 +48,13 @@ class DrvLog(object):
     def extract_data(self, pattern):
         data_list = pattern.findall(self.text)
         return data_list
+        # print(data_list)
+        # data_list_fake = list(map(list, data_list))
+        # for i in range(len(data_list_fake)):
+        #     if i % 5 != 0:
+        #         data_list_fake[i][0:3] = data_list_fake[i-1][0:3]
+        # return data_list_fake
+
 
     def parse_df(self, pattern):
         data_list = self.extract_data(pattern)
@@ -59,6 +66,11 @@ class DrvLog(object):
         df['timestamp(ms)'] = ts / 19200
         df['ts_interval'] = df['timestamp(ms)'].diff()
         # df = df.applymap(lambda x: '%.2f' % x if isinstance(x, float) else x)
+
+        # for index, row in df.iterrows():
+        #     if index % 2 == 1:
+        #         print(df[['x', 'y', 'z']][0])
+        #         # df[['x', 'y', 'z']][index] = df[['x', 'y', 'z']][index - 1]
         return df
 
     def parse_acc_data(self):

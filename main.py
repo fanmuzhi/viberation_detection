@@ -64,13 +64,13 @@ def plot_result(dataframe, **kwargs):
     plt.show()
 
 
-# def warning_dialog(title, content):
-#     warning_box = QtWidgets.QMessageBox()
-#     warning_box.setWindowTitle(title)
-#     warning_box.setIcon(QtWidgets.QMessageBox.Warning)
-#     warning_box.setText(content)
-#     warning_box.setWindowModality(QtCore.Qt.ApplicationModal)
-#     warning_box.exec()
+def warning_dialog(title, content):
+    warning_box = QtWidgets.QMessageBox()
+    warning_box.setWindowTitle(title)
+    warning_box.setIcon(QtWidgets.QMessageBox.Warning)
+    warning_box.setText(content)
+    warning_box.setWindowModality(QtCore.Qt.ApplicationModal)
+    warning_box.exec()
 
 
 class PandasModel(QtCore.QAbstractTableModel):
